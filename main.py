@@ -8,7 +8,7 @@ class Command(Enum):
 
 # Component Pattern: Define a Grid class to represent the grid
 class Grid:
-    def __init__(self, width, height):
+    def _init_(self, width, height):
         self.width = width
         self.height = height
         self.obstacles = set()
@@ -31,7 +31,7 @@ class TurnRightCommand:
 
 # Receiver Pattern: Create a Rover class to receive and execute commands
 class Rover:
-    def __init__(self, x, y, direction, grid):
+    def _init_(self, x, y, direction, grid):
         self.x = x
         self.y = y
         self.direction = direction
@@ -77,16 +77,45 @@ class Rover:
     def send_status_report(self):
         return f"Rover is at ({self.x}, {self.y}) facing {self.direction}. No Obstacles detected."
 
-# Client code
-grid = Grid(10, 10)
-grid.add_obstacle(2, 2)
-grid.add_obstacle(3, 5)
-rover = Rover(0, 0, 'N', grid)
-commands = [MoveCommand(), MoveCommand(), TurnRightCommand(), MoveCommand(), TurnLeftCommand(), MoveCommand()]
+# Get user input for grid size
+grid_width = int(input("Enter grid width: "))
+grid_height = int(input("Enter grid height: "))
 
+# Create a grid
+grid = Grid(grid_width, grid_height)
+
+# Get user input for obstacle positions
+while True:
+    obstacle_x = int(input("Enter obstacle x-coordinate (or -1 to finish): "))
+    if obstacle_x == -1:
+        break
+    obstacle_y = int(input("Enter obstacle y-coordinate: "))
+    grid.add_obstacle(obstacle_x, obstacle_y)
+
+# Get user input for rover initial position and direction
+rover_x = int(input("Enter rover x-coordinate: "))
+rover_y = int(input("Enter rover y-coordinate: "))
+rover_direction = input("Enter rover initial direction (N, E, S, W): ")
+
+# Initialize the rover
+rover = Rover(rover_x, rover_y, rover_direction, grid)
+
+# Get user input for rover commands
+commands_input = input("Enter rover commands (e.g., 'MMRLM'): ")
+commands = []
+for char in commands_input:
+    if char == 'M':
+        commands.append(MoveCommand())
+    elif char == 'L':
+        commands.append(TurnLeftCommand())
+    elif char == 'R':
+        commands.append(TurnRightCommand())
+
+# Execute the rover commands
 for command in commands:
     command.execute(rover)
 
+# Print the final position and status report
 final_position = (rover.x, rover.y, rover.direction)
 status_report = rover.send_status_report()
 
